@@ -37,8 +37,8 @@ class CifarDataLoader(object):
         # Data reshape
         x_train = torch.from_numpy(np.reshape(x_train, (-1, 3, 32, 32)))
         x_test = torch.from_numpy(np.reshape(x_test, (-1, 3, 32, 32)))
-        y_train = torch.from_numpy(y_train)
-        y_test = torch.from_numpy(y_test)
+        y_train = torch.from_numpy(y_train).long()
+        y_test = torch.from_numpy(y_test).long()
         # Generate torch dataset
         self._train_dataset = Data.TensorDataset(x_train, y_train)
         self._test_dataset = Data.TensorDataset(x_test, y_test)

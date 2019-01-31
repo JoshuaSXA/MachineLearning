@@ -17,9 +17,21 @@ data_loader.load_data()
 train_loader = data_loader.get_data_loader(batch_size=100, shuffle=True)
 test_loader = data_loader.get_data_loader(test=True)
 
+
+def weights_initializer(model):
+    classname = model.__class__.__name__
+    if classname.find("Conv2d") != -1:
+        nn.init.normal_(model.weight.data, mean=0, std=0.01)
+        nn.init.constant_(model.bias.data, 0.0)
+    elif classname.find('Linear') != -1:
+        nn.init.normal_(model.weight.data, mean=0, std=0.01)
+        nn.init.constant_(model.bias.data, 0.0)
+
 # Load model
 net = VGGNet()
 net = net.to(device)
+net.apply(weights_initializer)
+
 
 # Loss Function & Optimizer
 criterion = nn.CrossEntropyLoss()
@@ -38,12 +50,11 @@ def train(epoch):
         loss = criterion(outputs, targets)
         loss.backward()
         optimizer.step()
-
         train_loss += loss.item()
         _, predicted = outputs.max(1)
         total += targets.size(0)
         correct += predicted.eq(targets).sum().item()
-        print("Batch %d: Train Loss is %.3f and Accuracy is %.3f (%d/%d)" % (batch_idx, train_loss/(batch_idx+1), 100.*correct/total, correct, total))
+        print("Batch %d: Train Loss is %.5f and Accuracy is %.3f (%d/%d)" % (batch_idx, train_loss/(batch_idx+1), 100.*correct/total, correct, total))
 
 def test(epoch):
     net.eval()
@@ -60,18 +71,17 @@ def test(epoch):
             _, predicted = outputs.max(1)
             total += targets.size(0)
             correct += predicted.eq(targets).sum().item()
-    print("Test Loss is %.3f and Accuracy is %.3f (%d/%d)" % (test_loss / len(test_loader), 100. * correct / total, correct, total))
+    print("Test Loss is %.5f and Accuracy is %.3f (%d/%d)" % (test_loss / len(test_loader), 100. * correct / total, correct, total))
     acc = 100.*correct/total
     if acc > best_accuracy:
         print('Saving..')
         state = {
             'net': net.state_dict(),
+            'optimizer': optimizer.state_dict(),
             'acc': acc,
             'epoch': epoch,
         }
-        if not os.path.isdir('checkpoint'):
-            os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/ckpt.t7')
+        torch.save(net, './result/vgg_ckpt.pkl')
         best_accuracy = acc
 
 for epoch in range(100):
