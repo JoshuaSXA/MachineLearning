@@ -53,8 +53,8 @@ class CifarDataLoader(object):
         return data_loader
 
 
-# if __name__ == '__main__':
-#     data_loader = CifarDataLoader('./data/cifar-10-batches-py/', 'data_batch_', 'test_batch')
-#     data_loader.load_data()
-#     train_loader = data_loader.get_data_loader(batch_size=100, shuffle=True)
-#     print(train_loader)
+if __name__ == '__main__':
+    data_loader = CifarDataLoader('./data/cifar-10-batches-py/', 'data_batch_', 'test_batch')
+    data_loader.load_data()
+    train_loader = data_loader.get_data_loader(batch_size=100, shuffle=True)
+    print(train_loader)
